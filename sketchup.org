@@ -1,0 +1,30 @@
+* tiny
+Assignment 3   due Mon  8 Mar
+* brief
+** a
+┓ Assignment 3        due Mon  8 Mar 11:09    ┓ Last submitted  Mon  8 Mar 11:12
+                                                ┓ assignment3.zip
+  ┓ etc.                                        ┗ etc.
+  ┗ Oskar Berndal         Mon  8 Mar 11:18               
+    demofilm:                                  
+    https://drive.google.com/file/d/1b9H4Ls_ju_HjZwWmB0UP3LzDTz39AIp5/view?usp=s
+    haring     
+** b
+┓ Assignment 3        due Mon  8 Mar 11:09  ┓ Last submitted    Mon  8 Mar 11:12
+  ┓ etc.                                      ┻ assignment3.zip
+  ┗ Oskar Berndal         Mon  8 Mar 11:18               
+    demofilm:                                  
+    https://drive.google.com/file/d/1b9H4Ls_ju_HjZwWmB0UP3LzDTz39AIp5/view?usp=s
+    haring     
+                                               
+* verbose
+┓ Assignment 3      due Mon  8 Mar 11:09    ┓ Last submitted    Mon  8 Mar 11:12
+                   open Wed  3 Mar 11:12      ┓ group.txt
+                  close Fri 31 Mar 19:29        assignment3.zip
+                                                admissions.txt
+  ┓ Oskar Julius Bernd▒ Mon  8 Mar 11:18      ┗ grade_plea.txt
+    demofilm:                                      
+    https://drive.google.com/file/d/1b9H4Ls_ju_HjZwWmB0UP3LzDTz39AIp5/view?usp=s
+    haring
+  ┗ Oskar Berndal       Mon 8 Mar 11:18
+    Well well well
