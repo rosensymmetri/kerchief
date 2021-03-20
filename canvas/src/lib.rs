@@ -1,9 +1,11 @@
+use chrono::prelude::*;
 use reqwest::blocking::multipart::Form;
 use reqwest::blocking::Client;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 use thiserror::Error;
+use url::Url;
 
 #[derive(Deserialize, Debug)]
 pub struct FileUploadEntry {
@@ -148,6 +150,10 @@ pub fn get_courses(token: &str, domain: &str) -> Result<Vec<Course>> {
 pub struct Assignment {
     id: u64,
     name: String,
+    due_at: DateTime<Local>,
+    lock_at: Option<DateTime<Local>>,
+    unlock_at: Option<DateTime<Local>>,
+    submission: Option<Submission>,
 }
 
 impl Assignment {
@@ -157,6 +163,68 @@ impl Assignment {
 
     pub fn id(&self) -> u64 {
         self.id
+    }
+
+    pub fn due_at(&self) -> &DateTime<Local> {
+        &self.due_at
+    }
+
+    pub fn lock_at(&self) -> Option<&DateTime<Local>> {
+        (&self.lock_at).as_ref()
+    }
+
+    pub fn unlock_at(&self) -> Option<&DateTime<Local>> {
+        (&self.unlock_at).as_ref()
+    }
+}
+
+#[derive(Clone, Deserialize, Debug)]
+pub struct Submission {
+    #[serde(flatten)]
+    submission_type: SubmissionTypeResponse,
+    submitted_at: DateTime<Local>,
+}
+
+#[derive(Clone, Deserialize, Debug)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "submission_type")]
+pub enum SubmissionTypeResponse {
+    OnlineTextEntry { body: String },
+    OnlineUrl { url: Url },
+    // Can an online upload have 0 attached files? Hmm
+    OnlineUpload { attachments: Vec<Attachment> },
+    MediaRecording,
+}
+
+impl Submission {
+    pub fn submitted_at(&self) -> &DateTime<Local> {
+        &self.submitted_at
+    }
+
+    pub fn submission_type_response(&self) -> &SubmissionTypeResponse {
+        &self.submission_type
+    }
+}
+
+#[derive(Clone, Deserialize, Debug)]
+struct SubmissionResponse {
+    #[serde(flatten)]
+    inner: Option<Submission>,
+}
+
+#[derive(Clone, Deserialize, Debug)]
+pub struct Attachment {
+    display_name: String,
+    filename: String,
+}
+
+impl Attachment {
+    pub fn display_name(&self) -> &str {
+        &self.display_name
+    }
+
+    pub fn filename(&self) -> &str {
+        &self.filename
     }
 }
 
@@ -172,8 +240,21 @@ pub enum Bucket {
     Future,
 }
 
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum GetSubmissionInclude {
+    SubmissionHistory,
+    SubmissionComments,
+    RubricAssessment,
+    Assignment,
+    Visibility,
+    Course,
+    User,
+    Group,
+}
+
 pub fn get_assignments(token: &str, domain: &str, course_id: u64) -> Result<Vec<Assignment>> {
-    Ok(Client::new()
+    let response: Vec<Assignment> = Client::new()
         .get(&format!(
             "https://{}/api/v1/courses/{}/assignments",
             domain, course_id
@@ -181,7 +262,27 @@ pub fn get_assignments(token: &str, domain: &str, course_id: u64) -> Result<Vec<
         .bearer_auth(token)
         .send()?
         .error_for_status()?
-        .json()?)
+        .json()?;
+    Ok(response)
+}
+
+pub fn get_single_submission(
+    token: &str,
+    domain: &str,
+    course_id: u64,
+    assignment_id: u64,
+) -> Result<Option<Submission>> {
+    Ok(Client::new()
+        .get(&format!(
+            "https://{}/api/v1/courses/{}/assignments/{}/submissions/self",
+            domain, course_id, assignment_id
+        ))
+        .query(&[("include[]", "submission_comments")])
+        .bearer_auth(token)
+        .send()?
+        .error_for_status()?
+        .json::<SubmissionResponse>()?
+        .inner)
 }
 
 #[cfg(test)]

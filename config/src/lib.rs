@@ -26,8 +26,16 @@ impl Config {
         &self.domain
     }
 
-    pub fn course_ident(&self) -> &Identifier {
+    fn course_ident(&self) -> &Identifier {
         &self.course
+    }
+
+    pub fn get_course_name(&self) -> Option<&str> {
+        self.course_ident().get_name()
+    }
+
+    pub fn get_course_id(&self) -> Option<u64> {
+        self.course_ident().get_id()
     }
 
     fn assignments(&self) -> impl Iterator<Item = (&str, &Assignment)> + '_ {
@@ -58,6 +66,14 @@ pub enum ReadIdentifier<'read> {
 impl Identifier {
     pub fn is_none(&self) -> bool {
         self.name.is_none() && self.name.is_none()
+    }
+
+    pub fn get_name(&self) -> Option<&str> {
+        self.name.as_deref()
+    }
+
+    pub fn get_id(&self) -> Option<u64> {
+        self.id
     }
 
     pub fn read(&self) -> ReadIdentifier<'_> {
@@ -105,6 +121,14 @@ impl Assignment {
             Include::Single(path) => vec![path],
             Include::Many(paths) => paths.iter().collect(),
         }
+    }
+
+    pub fn get_name(&self) -> Option<&str> {
+        self.ident.get_name()
+    }
+
+    pub fn get_id(&self) -> Option<u64> {
+        self.ident.get_id()
     }
 }
 
